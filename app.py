@@ -91,9 +91,44 @@ def get_table_download_link(df):
     csv = df.to_csv(index=False)
     return csv
 
+import pandas as pd
+import pyedflib
+import numpy as np
+
+def convert(file, filtype):
+    a = str(input())
+    print('Enter name of file')
+    name = str(input())
+    file_bdf = pyedflib.EdfReader('Data2.bdf')
+    signals_in_file = file_bdf.signals_in_file
+    signals_labels = file_bdf.getSignalLabels()
+    global sigbufs
+    sigbufs = np.zeros((signals_in_file, file_bdf.getNSamples()[0]))
+    for i in np.arange(signals_in_file):
+        sigbufs[i, :] = file_bdf.readSignal(i)
+    sigbus_series = pd.DataFrame(sigbufs.tolist())
+    if a == 'csv':
+        name_of_file = name + '.csv'
+        sigbus_series.to_csv(name_of_file)
+    elif a == 'npy':
+        name_of_file = name + '.npy'
+        sigbus_series = np.transpose(sigbus_series)
+        sigbufs_numpy = np.array(sigbus_series)
+        np.save(name_of_file, sigbufs_numpy)
+    elif a == 'tsv':
+        name_of_file = name + 'tsv'
+        sigbus_series.to_csv(name_of_file)
+    elif a == 'excel':
+        name_of_file = name + 'xlsx'
+        sigbus_series.to_excel(name_of_file, index=None, header=True)
+
+def convert_df(df):
+        # IMPORTANT: Cache the conversion to prevent computation on every rerun
+    return df.to_csv().encode('utf-8')
+
 
 def main():
-    test_input_np = np.load('test.npy')
+    test_input_np = np.load('test_input.npy')
     st.title("ЭЭГ аналитика")
     st.sidebar.subheader("")
     session_list = ['E01', 'E02', 'E03', 'E04', 'E05', 'E06', 'E07', 'E08']
@@ -136,6 +171,15 @@ def main():
         st.write("Таблица сигналов ", session_name)
         st.dataframe(np.transpose(signals))
     selected_type = st.selectbox("Тип файла", files_types)
+
+
+    csv = convert_df(np.transpose(signals))
+    st.download_button(
+        label=f"Скачать файл как {selected_type}",
+        data=csv,
+        file_name='large_df.csv',
+        mime='text/csv',
+    )
     st.write("Информация о ээг в ритме -  ", selected_frequency)
     st.line_chart(sampled_channel)
     st.write("Сигнал с обработкой")
