@@ -96,7 +96,7 @@ def convert_df(df):
 
 
 def main():
-    test_input_np = np.load('test_input.npy')
+    test_input_np = np.load('test.npy')
     st.title("ЭЭГ аналитика")
     st.sidebar.subheader("")
     session_list = ['E01', 'E02', 'E03', 'E04', 'E05', 'E06', 'E07', 'E08']
