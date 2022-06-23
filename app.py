@@ -91,39 +91,7 @@ def get_table_download_link(df):
     csv = df.to_csv(index=False)
     return csv
 
-import pandas as pd
-import pyedflib
-import numpy as np
-
-def convert(file, filtype):
-    a = str(input())
-    print('Enter name of file')
-    name = str(input())
-    file_bdf = pyedflib.EdfReader('Data2.bdf')
-    signals_in_file = file_bdf.signals_in_file
-    signals_labels = file_bdf.getSignalLabels()
-    global sigbufs
-    sigbufs = np.zeros((signals_in_file, file_bdf.getNSamples()[0]))
-    for i in np.arange(signals_in_file):
-        sigbufs[i, :] = file_bdf.readSignal(i)
-    sigbus_series = pd.DataFrame(sigbufs.tolist())
-    if a == 'csv':
-        name_of_file = name + '.csv'
-        sigbus_series.to_csv(name_of_file)
-    elif a == 'npy':
-        name_of_file = name + '.npy'
-        sigbus_series = np.transpose(sigbus_series)
-        sigbufs_numpy = np.array(sigbus_series)
-        np.save(name_of_file, sigbufs_numpy)
-    elif a == 'tsv':
-        name_of_file = name + 'tsv'
-        sigbus_series.to_csv(name_of_file)
-    elif a == 'excel':
-        name_of_file = name + 'xlsx'
-        sigbus_series.to_excel(name_of_file, index=None, header=True)
-
 def convert_df(df):
-        # IMPORTANT: Cache the conversion to prevent computation on every rerun
     return df.to_csv().encode('utf-8')
 
 
